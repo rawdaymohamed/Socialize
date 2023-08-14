@@ -1,8 +1,13 @@
-import { Button } from "@mui/material";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { Test } from "./Test";
 function App() {
   return (
     <>
-      <Button variant="contained">Test</Button>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/test" element={<Test />} />
+        </Routes>
+      </BrowserRouter>
     </>
   );
 }
