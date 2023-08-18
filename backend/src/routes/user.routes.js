@@ -1,5 +1,8 @@
 import { Router } from "express";
-import { create } from "../controllers/user.controller";
+import { create, list, read, userByID } from "../controllers/user.controller";
+import { requireSigin } from "../controllers/auth.controller";
 const router = Router();
-router.route("/api/users").post(create);
+router.param("userId", userByID);
+router.route("/api/users").post(create).get(list);
+router.route("/api/users/:userId").get(requireSigin, read);
 export default router;
