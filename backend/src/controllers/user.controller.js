@@ -1,5 +1,8 @@
 import User from "../models/user.model";
 import errorHandler from "../helpers/dbErrorHandler";
+import formidable from "formidable";
+import fs from "fs";
+import _ from "lodash";
 export const create = async (req, res) => {
   try {
     const { email } = req.body;
@@ -49,4 +52,34 @@ export const read = (req, res) => {
   req.profile.email = undefined;
   req.profile.salt = undefined;
   return res.json(req.profile);
+};
+export const update = async (req, res) => {
+  const form = formidable({});
+  form.keepExtensions = true;
+  form.parse(req, async (err, fields, files) => {
+    if (err) {
+      return res.status(400).json({
+        error: "Photo could not be uploaded",
+      });
+    }
+    let user = req.profile;
+    user = _.extend(user, fields);
+    if (files.photo) {
+      user.photo.data = fs.readFileSync(files.photo.filepath);
+      user.photo.contentType = files.photo.mimetype;
+    }
+    try {
+      await user.save();
+
+      user.photo = undefined;
+      user.hashedPassword = undefined;
+      user.salt = undefined;
+      user.updated = Date.now();
+      return res.json(user);
+    } catch (error) {
+      return res.status(400).json({
+        error: errorHandler.getErrorMessage(error),
+      });
+    }
+  });
 };
