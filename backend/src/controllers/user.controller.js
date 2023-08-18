@@ -83,3 +83,16 @@ export const update = async (req, res) => {
     }
   });
 };
+export const remove = async (req, res) => {
+  try {
+    const user = req.profile;
+    const deletedUser = await User.findByIdAndDelete(user._id);
+    deletedUser.hashedPassword = undefined;
+    deletedUser.salt = undefined;
+    res.json(deletedUser);
+  } catch (err) {
+    return res.status(400).json({
+      error: errorHandler.getErrorMessage(err),
+    });
+  }
+};

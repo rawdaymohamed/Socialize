@@ -3,6 +3,7 @@ import {
   create,
   list,
   read,
+  remove,
   update,
   userByID,
 } from "../controllers/user.controller";
@@ -13,5 +14,6 @@ router.route("/api/users").post(create).get(list);
 router
   .route("/api/users/:userId")
   .get(requireSigin, read)
-  .put(requireSigin, hasAuthorization, update);
+  .put(requireSigin, hasAuthorization, update)
+  .delete(requireSigin, hasAuthorization, remove);
 export default router;
