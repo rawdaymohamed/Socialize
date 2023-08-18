@@ -1,6 +1,11 @@
 import express from "express";
 import { connectToDevDB } from "./utils/connectToDevDB";
 import { handleUnauthorizedError } from "./utils/handleUnauthorizedError";
+import authRoutes from "./routes/auth.routes";
+import userRoutes from "./routes/user.routes";
 const app = express();
+app.use(express.json());
+app.use("/", authRoutes);
+app.use("/", userRoutes);
 connectToDevDB(app);
 handleUnauthorizedError(app);
