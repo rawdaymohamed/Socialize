@@ -3,6 +3,7 @@ import {
   create,
   defaultPhoto,
   list,
+  photo,
   read,
   remove,
   update,
@@ -17,5 +18,5 @@ router
   .get(requireSigin, read)
   .put(requireSigin, hasAuthorization, update)
   .delete(requireSigin, hasAuthorization, remove);
-router.route("/api/users/:userId/photo").get(defaultPhoto);
+router.route("/api/users/:userId/photo").get(photo, defaultPhoto);
 export default router;

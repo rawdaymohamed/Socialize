@@ -100,3 +100,10 @@ export const remove = async (req, res) => {
 export const defaultPhoto = (req, res) => {
   return res.sendFile("profile-pic.png", { root: "public" });
 };
+export const photo = (req, res, next) => {
+  if (req.profile.photo.data) {
+    res.set("Content-Type", req.profile.photo.contentType);
+    return res.send(req.profile.photo.data);
+  }
+  next();
+};
