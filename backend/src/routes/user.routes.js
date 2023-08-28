@@ -1,5 +1,7 @@
 import { Router } from "express";
 import {
+  addFollower,
+  addFollowing,
   create,
   defaultPhoto,
   list,
@@ -19,4 +21,7 @@ router
   .put(requireSigin, hasAuthorization, update)
   .delete(requireSigin, hasAuthorization, remove);
 router.route("/api/users/:userId/photo").get(photo, defaultPhoto);
+router
+  .route("/api/follow/:followId/users/:userId")
+  .put(requireSigin, hasAuthorization, addFollowing, addFollower);
 export default router;

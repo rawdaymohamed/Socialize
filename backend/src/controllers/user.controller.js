@@ -3,6 +3,7 @@ import errorHandler from "../helpers/dbErrorHandler";
 import formidable from "formidable";
 import fs from "fs";
 import _ from "lodash";
+import mongoose from "mongoose";
 export const create = async (req, res) => {
   try {
     const { email } = req.body;
@@ -106,4 +107,47 @@ export const photo = (req, res, next) => {
     return res.send(req.profile.photo.data);
   }
   next();
+};
+export const addFollowing = async (req, res, next) => {
+  if (req.params.userId == req.params.followId) {
+    return res.status(400).json({ error: "You can't follow yourself" });
+  }
+  try {
+    const alreadyFollowing = await User.findById(req.params.followId)
+      .populate("following", "_id")
+      .exec();
+    for (let following of alreadyFollowing.following) {
+      if (following._id == req.params.userId)
+        return res.status(400).json({ error: "Already following" });
+    }
+    await User.findByIdAndUpdate(req.params.followId, {
+      $push: { following: req.params.userId },
+    });
+    next();
+  } catch (err) {
+    return res.status(400).json({ error: errorHandler.getErrorMessage(err) });
+  }
+};
+export const addFollower = async (req, res) => {
+  try {
+    const alreadyFollowers = await User.findById(req.params.userId)
+      .populate("followers", "_id")
+      .exec();
+    for (let follower of alreadyFollowers) {
+      if (follower._id == req.params.followId)
+        return res.status(400).json({ error: "Already follower" });
+    }
+    await User.findByIdAndUpdate(req.params.userId, {
+      $push: { followers: req.params.followId },
+    });
+    const userResult = await User.findOne({ _id: req.params.userId })
+      .populate("followers", "_id name")
+      .populate("following", "_id name")
+      .exec();
+    userResult.hashedPassword = undefined;
+    userResult.salt = undefined;
+    return res.json(userResult);
+  } catch (err) {
+    return res.status(400).json({ error: errorHandler.getErrorMessage(err) });
+  }
 };
