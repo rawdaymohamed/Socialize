@@ -96,3 +96,7 @@ export const remove = async (req, res) => {
     });
   }
 };
+
+export const defaultPhoto = (req, res) => {
+  return res.sendFile("profile-pic.png", { root: "public" });
+};

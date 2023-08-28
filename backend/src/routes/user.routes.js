@@ -1,6 +1,7 @@
 import { Router } from "express";
 import {
   create,
+  defaultPhoto,
   list,
   read,
   remove,
@@ -16,4 +17,5 @@ router
   .get(requireSigin, read)
   .put(requireSigin, hasAuthorization, update)
   .delete(requireSigin, hasAuthorization, remove);
+router.route("/api/users/:userId/photo").get(defaultPhoto);
 export default router;
