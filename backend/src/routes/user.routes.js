@@ -8,6 +8,8 @@ import {
   photo,
   read,
   remove,
+  removeFollower,
+  removeFollowing,
   update,
   userByID,
 } from "../controllers/user.controller";
@@ -22,6 +24,9 @@ router
   .delete(requireSigin, hasAuthorization, remove);
 router.route("/api/users/:userId/photo").get(photo, defaultPhoto);
 router
-  .route("/api/follow/:followId/users/:userId")
+  .route("/api/users/:userId/follow/:followId")
   .put(requireSigin, hasAuthorization, addFollowing, addFollower);
+router
+  .route("/api/users/:userId/unfollow/:followId")
+  .put(requireSigin, hasAuthorization, removeFollowing, removeFollower);
 export default router;

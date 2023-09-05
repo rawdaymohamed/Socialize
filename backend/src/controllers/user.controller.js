@@ -113,16 +113,22 @@ export const addFollowing = async (req, res, next) => {
     return res.status(400).json({ error: "You can't follow yourself" });
   }
   try {
-    const alreadyFollowing = await User.findById(req.params.followId)
+    const alreadyFollowing = await User.findById(req.params.userId)
       .populate("following", "_id")
       .exec();
+
     for (let following of alreadyFollowing.following) {
-      if (following._id == req.params.userId)
+      if (following._id == req.params.followId)
         return res.status(400).json({ error: "Already following" });
     }
-    await User.findByIdAndUpdate(req.params.followId, {
-      $push: { following: req.params.userId },
-    });
+    await User.findByIdAndUpdate(
+      req.params.userId,
+      {
+        $push: { following: req.params.followId },
+      },
+      { new: true }
+    );
+
     next();
   } catch (err) {
     return res.status(400).json({ error: errorHandler.getErrorMessage(err) });
@@ -130,15 +136,48 @@ export const addFollowing = async (req, res, next) => {
 };
 export const addFollower = async (req, res) => {
   try {
-    const alreadyFollowers = await User.findById(req.params.userId)
+    const alreadyFollowers = await User.findById(req.params.followId)
       .populate("followers", "_id")
       .exec();
-    for (let follower of alreadyFollowers) {
-      if (follower._id == req.params.followId)
+    for (let follower of alreadyFollowers.followers) {
+      if (follower._id == req.params.userId)
         return res.status(400).json({ error: "Already follower" });
     }
-    await User.findByIdAndUpdate(req.params.userId, {
-      $push: { followers: req.params.followId },
+    await User.findByIdAndUpdate(
+      req.params.followId,
+      {
+        $push: { followers: req.params.userId },
+      },
+      { new: true }
+    );
+    const userResult = await User.findById(req.params.userId)
+      .populate("followers", "_id name")
+      .populate("following", "_id name")
+      .exec();
+    userResult.hashedPassword = undefined;
+    userResult.salt = undefined;
+    return res.json(userResult);
+  } catch (err) {
+    return res.status(400).json({ error: errorHandler.getErrorMessage(err) });
+  }
+};
+export const removeFollowing = async (req, res, next) => {
+  if (req.params.userId == req.params.followId) {
+    return res.status(400).json({ error: "You can't follow yourself" });
+  }
+  try {
+    await User.findByIdAndUpdate(req.params.followId, {
+      $pull: { following: req.params.userId },
+    });
+    next();
+  } catch (err) {
+    return res.status(400).json({ error: errorHandler.getErrorMessage(err) });
+  }
+};
+export const removeFollower = async (req, res) => {
+  try {
+    await User.findByIdAndUpdate(req.params.followId, {
+      $pull: { followers: req.params.userId },
     });
     const userResult = await User.findOne({ _id: req.params.userId })
       .populate("followers", "_id name")
