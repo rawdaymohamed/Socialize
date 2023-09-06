@@ -1,7 +1,7 @@
 import formidable from "formidable";
 import fs from "fs";
 import Post from "../models/post.model";
-
+import _ from "lodash";
 export const create = async (req, res) => {
   const form = formidable({});
   form.keepExtensions = true;
@@ -64,4 +64,32 @@ export const getPostPhoto = async (req, res) => {
     return res.send(post.photo.data);
   }
   return res.json({ error: "No photo available" });
+};
+export const update = async (req, res) => {
+  const form = formidable({});
+  form.keepExtensions = true;
+  form.parse(req, async (err, fields, files) => {
+    if (err) {
+      return res.status(400).json({
+        error: "Photo could not be uploaded",
+      });
+    }
+    let post = req.post;
+    post = _.extend(post, fields);
+    if (files.photo) {
+      post.photo.data = fs.readFileSync(files.photo.filepath);
+      post.photo.contentType = files.photo.mimetype;
+    }
+    try {
+      await post.save();
+
+      post.photo = undefined;
+      post.updated = Date.now();
+      return res.json(post);
+    } catch (error) {
+      return res.status(400).json({
+        error: errorHandler.getErrorMessage(error),
+      });
+    }
+  });
 };

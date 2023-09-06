@@ -5,6 +5,7 @@ import {
   getPostPhoto,
   postById,
   read,
+  update,
 } from "../controllers/post.controller";
 import { userByID } from "../controllers/user.controller";
 
@@ -14,7 +15,10 @@ router.param("postId", postById);
 router
   .route("/api/users/:userId/posts")
   .post(requireSigin, hasAuthorization, create);
-router.route("/api/users/:userId/posts/:postId").get(requireSigin, read);
+router
+  .route("/api/users/:userId/posts/:postId")
+  .get(requireSigin, read)
+  .put(requireSigin, hasAuthorization, update);
 router
   .route("/api/users/:userId/posts/:postId/photo")
   .get(requireSigin, getPostPhoto);
