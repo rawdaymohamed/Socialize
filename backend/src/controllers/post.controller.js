@@ -93,3 +93,13 @@ export const update = async (req, res) => {
     }
   });
 };
+export const remove = async (req, res) => {
+  try {
+    const deletedPost = await Post.findById(req.post._id);
+    deletedPost.photo = undefined;
+    await Post.findByIdAndDelete(req.post._id);
+    return res.json(deletedPost);
+  } catch (err) {
+    return res.status(400).json({ error: "couldn't delete post" });
+  }
+};
