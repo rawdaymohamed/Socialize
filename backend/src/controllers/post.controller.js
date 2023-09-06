@@ -32,3 +32,27 @@ export const create = async (req, res) => {
     }
   });
 };
+export const postById = async (req, res, next, id) => {
+  try {
+    const post = await Post.findById(id)
+      .populate("postedBy", "_id name")
+      .populate("likes", "_id name")
+      .populate("comments", "_id text created")
+      .populate("comments.postedBy", "_id name")
+      .exec();
+    if (!post)
+      return res.status(400).json({
+        error: "Post not found",
+      });
+    post.photo = undefined;
+    req.post = post;
+    next();
+  } catch (err) {
+    return res.status(400).json({
+      error: "Could not retrieve post",
+    });
+  }
+};
+export const read = async (req, res) => {
+  return res.json(req.post);
+};
