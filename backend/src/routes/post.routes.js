@@ -3,6 +3,7 @@ import { hasAuthorization, requireSigin } from "../controllers/auth.controller";
 import {
   create,
   getPostPhoto,
+  getRecommended,
   postById,
   read,
   readPostsByUser,
@@ -18,6 +19,9 @@ router
   .route("/api/users/:userId/posts")
   .post(requireSigin, hasAuthorization, create)
   .get(requireSigin, readPostsByUser);
+router
+  .route("/api/users/:userId/posts/recommended")
+  .get(requireSigin, hasAuthorization, getRecommended);
 router
   .route("/api/users/:userId/posts/:postId")
   .get(requireSigin, read)

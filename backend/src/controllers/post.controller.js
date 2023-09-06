@@ -2,6 +2,7 @@ import formidable from "formidable";
 import fs from "fs";
 import Post from "../models/post.model";
 import _ from "lodash";
+import User from "../models/user.model";
 export const create = async (req, res) => {
   const form = formidable({});
   form.keepExtensions = true;
@@ -114,4 +115,19 @@ export const readPostsByUser = async (req, res) => {
   } catch (err) {
     return res.status(400).json({ error: "couldn't retrieve posts" });
   }
+};
+export const getRecommended = async (req, res) => {
+  const followings = await User.findById(req.profile._id).select("following");
+
+  const posts = [];
+  for (let following of followings.following) {
+    let followingPosts = await Post.find({ postedBy: following._id })
+      .select("_id text postedBy likes comments")
+      .populate("postedBy", "_id name")
+      .populate("likes", "_id name")
+      .populate("comments.postedBy", "_id name")
+      .exec();
+    posts.push(followingPosts);
+  }
+  return res.json(posts);
 };
