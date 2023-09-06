@@ -44,8 +44,8 @@ export const postById = async (req, res, next, id) => {
       return res.status(400).json({
         error: "Post not found",
       });
-    post.photo = undefined;
     req.post = post;
+
     next();
   } catch (err) {
     return res.status(400).json({
@@ -55,4 +55,11 @@ export const postById = async (req, res, next, id) => {
 };
 export const read = async (req, res) => {
   return res.json(req.post);
+};
+export const getPostPhoto = (req, res) => {
+  if (req.post.photo.data) {
+    res.set("Content-Type", req.post.photo.contentType);
+    return res.send(req.post.photo.data);
+  }
+  return res.json({ error: "No photo available" });
 };
