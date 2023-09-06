@@ -5,6 +5,7 @@ import {
   getPostPhoto,
   postById,
   read,
+  readPostsByUser,
   remove,
   update,
 } from "../controllers/post.controller";
@@ -15,7 +16,8 @@ router.param("userId", userByID);
 router.param("postId", postById);
 router
   .route("/api/users/:userId/posts")
-  .post(requireSigin, hasAuthorization, create);
+  .post(requireSigin, hasAuthorization, create)
+  .get(requireSigin, readPostsByUser);
 router
   .route("/api/users/:userId/posts/:postId")
   .get(requireSigin, read)

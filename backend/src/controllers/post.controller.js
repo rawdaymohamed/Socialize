@@ -103,3 +103,15 @@ export const remove = async (req, res) => {
     return res.status(400).json({ error: "couldn't delete post" });
   }
 };
+export const readPostsByUser = async (req, res) => {
+  try {
+    const posts = await Post.find({ postedBy: req.profile._id })
+      .select("_id text comments text")
+      .populate("postedBy", "_id name")
+      .exec();
+
+    return res.json(posts);
+  } catch (err) {
+    return res.status(400).json({ error: "couldn't retrieve posts" });
+  }
+};
